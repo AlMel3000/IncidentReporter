@@ -1,13 +1,11 @@
-
 import React, {Component} from 'react';
-import {View, StyleSheet} from 'react-native'
+import {StyleSheet, View} from 'react-native'
 
 import {StackNavigator} from 'react-navigation';
 
 import colors from '../views/data/colors'
 
 import Main from '../views/screens/Main'
-
 
 
 const TopLevelNavigator = StackNavigator(
@@ -21,9 +19,7 @@ const TopLevelNavigator = StackNavigator(
 export default class AppNavContainer extends Component {
 
 
-
-
-  render() {
+    render() {
         return (
             <View style={styles.container}>
                 <TopLevelNavigator/>
