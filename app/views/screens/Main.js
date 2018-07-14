@@ -5,6 +5,7 @@ import React, {Component} from 'react';
 
 let ImagePicker = require('react-native-image-picker');
 
+//todo replace with actual strings
 let options = {
     title: 'Some text',
     noData: true,
