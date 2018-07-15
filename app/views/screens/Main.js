@@ -4,10 +4,10 @@ import React, {Component} from 'react';
 
 import colors from '../data/colors'
 
+import ActionButton from 'react-native-action-button';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 let ImagePicker = require('react-native-image-picker');
-
-let geolocationPermissionsGranted = false;
 
 //todo replace with actual strings
 let options = {
@@ -22,6 +22,7 @@ let options = {
     }
 };
 
+let geolocationPermissionsGranted = false;
 const GEOLOCATION_REFRESH_RATE = 5000;
 
 let recipientArray = [
@@ -169,6 +170,20 @@ class Main extends Component {
                             style={{width: 28, height: 28}}/>
                     </TouchableOpacity>
                 </View>
+
+
+                <ActionButton buttonColor='black'>
+                    <ActionButton.Item buttonColor='black' title="Camera" onPress={() => console.log("notes tapped!")}>
+                        <Icon name="md-camera" style={styles.actionButtonIcon} />
+                    </ActionButton.Item>
+                    <ActionButton.Item buttonColor='black' title="Images" onPress={() => {}}>
+                        <Icon name="md-images" style={styles.actionButtonIcon} />
+                    </ActionButton.Item>
+                    <ActionButton.Item buttonColor='black' title="Send report" onPress={() => {}}>
+                        <Icon name="md-mail" style={styles.actionButtonIcon} />
+                    </ActionButton.Item>
+                </ActionButton>
+
             </View>
         );
     }
@@ -187,6 +202,11 @@ const styles = StyleSheet.create({
         color: colors.textBlack,
         fontSize: 16,
         marginHorizontal: 8
+    },
+    actionButtonIcon: {
+        fontSize: 20,
+        height: 22,
+        color: 'white',
     }
 });
 
