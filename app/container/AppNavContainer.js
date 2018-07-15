@@ -7,12 +7,27 @@ import colors from '../views/data/colors'
 
 import Main from '../views/screens/Main'
 
+import Splash from '../views/screens/Splash'
+
 
 const TopLevelNavigator = StackNavigator(
     {
-        Main: {screen: Main}
+        Splash: {
+            screen: Splash,
+            navigationOptions: () => ({
+                header:null
+            })
+        },
+        Main: {
+            screen: Main,
+            navigationOptions: () => ({
+                title: 'Some text',
+                headerTitleStyle: {alignSelf: 'center'},
+                headerBackTitle: null,
+            })
+           }
     },
-    {headerMode: 'none'}
+    {headerMode: 'screen'}
 );
 
 
