@@ -6,8 +6,8 @@ import {StackNavigator} from 'react-navigation';
 import colors from '../views/data/colors'
 
 import Main from '../views/screens/Main'
-
 import Splash from '../views/screens/Splash'
+import Contacts from '../views/screens/Contacts'
 
 
 const TopLevelNavigator = StackNavigator(
@@ -15,7 +15,7 @@ const TopLevelNavigator = StackNavigator(
         Splash: {
             screen: Splash,
             navigationOptions: () => ({
-                header:null
+                header: null
             })
         },
         Main: {
@@ -24,9 +24,20 @@ const TopLevelNavigator = StackNavigator(
                 title: 'Some text',
                 headerTitleStyle: {alignSelf: 'center'},
                 headerBackTitle: null,
+                headerStyle: {backgroundColor: colors.lightGray}
             })
-           }
-    },
+        },
+        Contacts: {
+            screen: Contacts,
+            navigationOptions: () => ({
+                title: 'Some text',
+                headerTitleStyle: {alignSelf: 'center'},
+                headerBackTitle: null,
+                headerStyle: {backgroundColor: colors.lightGray}
+            })
+        }
+    }
+    ,
     {headerMode: 'screen'}
 );
 

@@ -1,9 +1,13 @@
-import {StyleSheet, View} from 'react-native';
+import {Image, PermissionsAndroid, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
 
 import React, {Component} from 'react';
 
+import colors from '../data/colors'
+
 
 let ImagePicker = require('react-native-image-picker');
+
+let geolocationPermissionsGranted = false;
 
 //todo replace with actual strings
 let options = {
@@ -18,25 +22,90 @@ let options = {
     }
 };
 
+const GEOLOCATION_REFRESH_RATE = 5000;
+
+let recipientArray = [
+    {
+        name: 'Ian Shmidt',
+        adress: 'ian_shmidt@mycompany.com'
+    },
+    {
+        name: 'Maximilian von Gruber',
+        adress: 'm_gruber@mycompany.com'
+    }
+];
+
 class Main extends Component {
 
     constructor(props) {
         super(props);
 
-        this.state = {
-
-        };
+        this.state = {};
 
     }
 
 
     componentDidMount() {
-
+        this.startGeolocationUpdate();
     }
 
 
     componentWillUnmount() {
+        clearInterval(this.interval);
+    }
 
+    startGeolocationUpdate() {
+        this.findLocation();
+        //to update location
+        this.interval = setInterval(() => {
+            this.findLocation();
+        }, GEOLOCATION_REFRESH_RATE);
+    }
+
+    findLocation() {
+        if (geolocationPermissionsGranted) {
+            navigator.geolocation.getCurrentPosition(
+                (geo_success) => {
+                    console.warn(geo_success.coords.latitude, geo_success.coords.longitude, geo_success.coords.speed, geo_success.coords.altitude,)
+                },
+                (geo_error) => {
+                    console.warn(geo_error);
+                },
+                {enableHighAccuracy: true, timeout: 20000, maximumAge: 100}
+            );
+        } else {
+            this.requestGeolocationPermission().then((result => {
+                if (result) {
+                    this.findLocation()
+                }
+            }));
+        }
+    }
+
+    async requestGeolocationPermission() {
+        try {
+            geolocationPermissionsGranted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                {
+                    'title': 'Incident Reporter App Geolocation Permission',
+                    'message': 'Incident Reporter needs access to Geolocation ' +
+                    'so you can submit detailed reports.'
+                }
+            );
+            if (geolocationPermissionsGranted === PermissionsAndroid.RESULTS.GRANTED) {
+                console.log("You can use the Geolocation");
+
+                return geolocationPermissionsGranted
+
+            } else {
+                console.log("Geolocation permission denied");
+                //to break location requests if user gave not permission
+                clearInterval(this.interval);
+                return false;
+            }
+        } catch (err) {
+            console.warn(err)
+        }
     }
 
     choosePhoto() {
@@ -67,6 +136,39 @@ class Main extends Component {
     render() {
         return (
             <View style={styles.container}>
+                <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    alignSelf: 'stretch',
+                }}>
+                    <View style={{
+                        flex: 1,
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        justifyContent: 'flex-start',
+                        paddingVertical: 2
+                    }}>
+                        {recipientArray.map((recipient, index) => {
+                            return (
+                                <View
+                                    key={index}>
+                                    <Text style={styles.recipient_name}>{recipient.name}</Text>
+                                </View>
+                            )
+                        })}
+                    </View>
+                    <TouchableOpacity
+                        style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                        onPress={(e) => this.props.navigation.navigate('Contacts')}>
+                        <Image
+                            source={require('../assets/account-multiple.png')}
+                            style={{width: 28, height: 28}}/>
+                    </TouchableOpacity>
+                </View>
             </View>
         );
     }
@@ -77,9 +179,14 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'flex-start',
-        backgroundColor: 'white',
+        backgroundColor: colors.lightGray,
         paddingVertical: 8,
         paddingHorizontal: 16
+    },
+    recipient_name: {
+        color: colors.textBlack,
+        fontSize: 16,
+        marginHorizontal: 8
     }
 });
 
