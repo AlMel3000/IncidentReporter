@@ -1,11 +1,28 @@
-import {Image, PermissionsAndroid, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
+import {
+    Image,
+    Linking,
+    ListView,
+    PermissionsAndroid,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native';
 
 import React, {Component} from 'react';
 
 import colors from '../data/colors'
+import BlockHeader from '../ui_elements/BlockHeader'
+
 
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
+
+import CardView from 'react-native-cardview'
+
+import {Bubbles} from 'react-native-loader';
 
 let ImagePicker = require('react-native-image-picker');
 
@@ -22,26 +39,24 @@ let options = {
     }
 };
 
+let imagesArray = [];
+
 let geolocationPermissionsGranted = false;
 const GEOLOCATION_REFRESH_RATE = 5000;
-
-let recipientArray = [
-    {
-        name: 'Ian Shmidt',
-        adress: 'ian_shmidt@mycompany.com'
-    },
-    {
-        name: 'Maximilian von Gruber',
-        adress: 'm_gruber@mycompany.com'
-    }
-];
 
 class Main extends Component {
 
     constructor(props) {
         super(props);
 
-        this.state = {};
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+
+        this.state = {
+            locationReceived: false,
+            description: '',
+            descriptionBorderColor: 'transparent',
+            dataSource: ds.cloneWithRows(imagesArray),
+        };
 
     }
 
@@ -67,7 +82,13 @@ class Main extends Component {
         if (geolocationPermissionsGranted) {
             navigator.geolocation.getCurrentPosition(
                 (geo_success) => {
-                    console.warn(geo_success.coords.latitude, geo_success.coords.longitude, geo_success.coords.speed, geo_success.coords.altitude,)
+                    console.warn(geo_success.coords.latitude, geo_success.coords.longitude, geo_success.coords.speed, geo_success.coords.altitude,);
+                    this.setState({
+                        latitude: Main.roundNumber(geo_success.coords.latitude, 2),
+                        longitude: Main.roundNumber(geo_success.coords.longitude, 2),
+                        speed: Main.roundNumber(geo_success.coords.speed, 0),
+                        locationReceived: true
+                    })
                 },
                 (geo_error) => {
                     console.warn(geo_error);
@@ -109,8 +130,13 @@ class Main extends Component {
         }
     }
 
+    static roundNumber(number, numbersAfterComma) {
+        let num = Number(number);
+        return num.toFixed(numbersAfterComma);
+    }
+
     choosePhoto() {
-        ImagePicker.showImagePicker(options, (response) => {
+        ImagePicker.launchImageLibrary(options, (response) => {
             console.log('Response = ', response);
 
             if (response.didCancel) {
@@ -124,63 +150,305 @@ class Main extends Component {
             }
             else {
                 let source = {uri: response.uri};
-                console.warn('Image source: ', source);
-
+                imagesArray.push(source);
                 this.setState({
-                    image: source
+                    dataSource: this.state.dataSource.cloneWithRows(imagesArray),
                 });
+                console.warn('Image source: ', imagesArray);
+            }
+        });
+    }
+
+    pickPhoto() {
+        ImagePicker.launchCamera(options, (response) => {
+            console.log('Response = ', response);
+
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            }
+            else if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            }
+            else if (response.customButton) {
+                console.log('User tapped custom button: ', response.customButton);
+            }
+            else {
+                let source = {uri: response.uri};
+                imagesArray.push(source);
+                this.setState({
+                    dataSource: this.state.dataSource.cloneWithRows(imagesArray),
+                });
+                console.warn('Image source: ', imagesArray);
+
             }
         });
     }
 
 
-    render() {
-        return (
-            <View style={styles.container}>
-                <View style={{
-                    flexDirection: 'row',
-                    alignItems: 'flex-start',
-                    justifyContent: 'flex-start',
-                    alignSelf: 'stretch',
-                }}>
-                    <View style={{
-                        flex: 1,
-                        flexDirection: 'column',
-                        alignItems: 'flex-start',
-                        justifyContent: 'flex-start',
-                        paddingVertical: 2
+    onChangeDescription(text) {
+        this.setState({
+            description: text,
+            descriptionBorderColor: 'transparent'
+        })
+    }
+
+    sendReport() {
+        if (this.state.description.trim().length < 2) {
+            this.setState({
+                descriptionBorderColor: 'red'
+            })
+        } else {
+            if (this.props.navigation.getParam('contacts', null)) {
+                Linking.openURL('mailto:' + this.props.navigation.getParam('contacts', null).map((recipient) => {
+                        return recipient.email
+                    }) + '?subject=Incident report&body=' +
+                    '\n' + this.state.description)
+            }
+
+        }
+
+    }
+
+    removeImage(source) {
+        let index = imagesArray.indexOf(source);
+        if (index > -1) {
+            imagesArray.splice(index, 1);
+            this.setState({
+                dataSource: this.state.dataSource.cloneWithRows(imagesArray),
+            });
+        }
+    }
+
+    renderRow(rowData, sectionID: string, rowID: string) {
+        if (!rowData) {
+            return null;
+        } else {
+            return (
+                <View
+                    style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: 8
                     }}>
-                        {recipientArray.map((recipient, index) => {
-                            return (
-                                <View
-                                    key={index}>
-                                    <Text style={styles.recipient_name}>{recipient.name}</Text>
-                                </View>
-                            )
-                        })}
-                    </View>
                     <TouchableOpacity
                         style={{
                             alignItems: 'center',
                             justifyContent: 'center',
+                            margin: 8
                         }}
-                        onPress={(e) => this.props.navigation.navigate('Contacts')}>
-                        <Image
-                            source={require('../assets/account-multiple.png')}
-                            style={{width: 28, height: 28}}/>
+                        onPress={(e) => this.props.navigation.navigate('Image', {
+                            imageSource: rowData
+                        })}>
+                        <Image source={rowData} style={{height: 64, width: 64, resizeMode: 'contain'}}/>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            position: 'absolute',
+                            right: 2,
+                            top: 2
+                        }}
+                        onPress={(e) => this.removeImage(rowData)}>
+                        <Icon
+                            name="md-trash"
+                            style={{
+                                fontSize: 20,
+                                height: 22,
+                                color: 'black'
+                            }}/>
                     </TouchableOpacity>
                 </View>
+            );
+        }
 
+    }
+
+
+
+    render() {
+        return (
+            <View
+                style={{
+                    flex: 1,
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    backgroundColor: colors.lightGray,
+                    paddingVertical: 8,
+                    paddingHorizontal: 8
+                }}>
+                <ScrollView
+                    style={styles.container}
+                    keyboardShouldPersistTaps='handled'>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'flex-start',
+                            justifyContent: 'flex-start',
+                            alignSelf: 'stretch'
+                        }}>
+                        <View
+                            style={{
+                                flex: 1,
+                                flexDirection: 'column',
+                                alignItems: 'flex-start',
+                                justifyContent: 'flex-start',
+                                paddingVertical: 2
+                            }}>
+                            {this.props.navigation.getParam('contacts', null) && this.props.navigation.getParam('contacts', null).map((recipient, index) => {
+                                return (
+                                    <View
+                                        key={index}>
+                                        <Text style={styles.recipient_name}>{recipient.name}</Text>
+                                    </View>
+                                )
+                            })}
+                        </View>
+                        <TouchableOpacity
+                            style={{
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                            onPress={(e) => this.props.navigation.navigate('Contacts')}>
+                            <Image
+                                source={require('../assets/account-multiple.png')}
+                                style={{width: 28, height: 28}}/>
+                        </TouchableOpacity>
+                    </View>
+
+                    <CardView
+                        cardElevation={2}
+                        cardMaxElevation={2}
+                        cornerRadius={2}
+                        style={{
+                            flexDirection: 'column',
+                            alignItems: 'flex-start',
+                            justifyContent: 'flex-start',
+                            marginVertical: 8,
+                            alignSelf: 'stretch',
+                            backgroundColor: colors.lightGray
+                        }}>
+
+                        <BlockHeader blockHeaderText={'Position details'}/>
+                        {this.state.locationReceived &&
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'flex-start',
+                                justifyContent: 'space-between',
+                                alignSelf: 'stretch'
+                            }}>
+
+                            <Text
+                                style={{
+                                    color: colors.textBlack,
+                                    fontSize: 18,
+                                    margin: 8
+                                }}>
+                                {"Lat: " + this.state.latitude}
+                            </Text>
+
+                            <Text
+                                style={{
+                                    color: colors.textBlack,
+                                    fontSize: 18,
+                                    margin: 8
+                                }}>
+                                {"Lon: " + this.state.longitude}
+                            </Text>
+
+                            <Text
+                                style={{
+                                    color: colors.textBlack,
+                                    fontSize: 18,
+                                    margin: 8
+                                }}>
+                                {"Speed: " + this.state.speed}
+                            </Text>
+
+                        </View>}
+                        {!this.state.locationReceived &&
+                        <View
+                            style={{
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                alignSelf: 'stretch',
+                                padding: 8
+                            }}>
+                            <Bubbles size={8} color={colors.intenseGray}/>
+                        </View>}
+                        <BlockHeader blockHeaderText={'Description'}/>
+
+                        <TextInput
+                            style={{
+                                height: 120,
+                                color: colors.textDark,
+                                alignSelf: 'stretch',
+                                fontSize: 14,
+                                backgroundColor: 'white',
+                                marginBottom: 16,
+                                marginHorizontal: 8,
+                                borderWidth: 1,
+                                borderColor: this.state.descriptionBorderColor,
+                            }}
+                            autoFocus={false}
+                            multiline={true}
+                            underlineColorAndroid={'transparent'}
+                            onChangeText={(text) => this.onChangeDescription(text)}
+                            value={this.state.description}/>
+                    </CardView>
+                    <CardView
+                        cardElevation={2}
+                        cardMaxElevation={2}
+                        cornerRadius={2}
+                        style={{
+                            flexDirection: 'column',
+                            alignItems: 'flex-start',
+                            justifyContent: 'flex-start',
+                            alignSelf: 'stretch',
+                            marginBottom: 8,
+                            backgroundColor: colors.lightGray
+                        }}>
+
+                        <BlockHeader blockHeaderText={'Photos'}/>
+                        <View
+                            style={{
+                                flex: 1,
+                                alignItems: 'flex-start',
+                                justifyContent: 'center',
+                                alignSelf: 'stretch',
+                                backgroundColor: 'white',
+                                height: 120,
+                                marginBottom: 16,
+                                marginHorizontal: 8,
+                            }}>
+                            <ScrollView horizontal={true}>
+                                <ListView
+                                    contentContainerStyle={{flexDirection: 'row'}}
+                                    dataSource={this.state.dataSource}
+                                    renderRow={this.renderRow.bind(this)}
+                                />
+                            </ScrollView>
+                        </View>
+                    </CardView>
+                </ScrollView>
 
                 <ActionButton buttonColor='black'>
-                    <ActionButton.Item buttonColor='black' title="Camera" onPress={() => console.log("notes tapped!")}>
-                        <Icon name="md-camera" style={styles.actionButtonIcon} />
+                    <ActionButton.Item buttonColor='black' title="Camera" onPress={(e) => {
+                        this.pickPhoto(e)
+                    }}>
+                        <Icon name="md-camera" style={styles.actionButtonIcon}/>
                     </ActionButton.Item>
-                    <ActionButton.Item buttonColor='black' title="Images" onPress={() => {}}>
-                        <Icon name="md-images" style={styles.actionButtonIcon} />
+                    <ActionButton.Item buttonColor='black' title="Images" onPress={(e) => {
+                        this.choosePhoto(e)
+                    }}>
+                        <Icon name="md-images" style={styles.actionButtonIcon}/>
                     </ActionButton.Item>
-                    <ActionButton.Item buttonColor='black' title="Send report" onPress={() => {}}>
-                        <Icon name="md-mail" style={styles.actionButtonIcon} />
+                    <ActionButton.Item buttonColor='black' title="Send report" onPress={(e) => {
+                        this.sendReport(e)
+                    }}>
+                        <Icon name="md-mail" style={styles.actionButtonIcon}/>
                     </ActionButton.Item>
                 </ActionButton>
 
@@ -192,11 +460,7 @@ class Main extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        backgroundColor: colors.lightGray,
-        paddingVertical: 8,
-        paddingHorizontal: 16
+        alignSelf: 'stretch'
     },
     recipient_name: {
         color: colors.textBlack,
@@ -206,7 +470,7 @@ const styles = StyleSheet.create({
     actionButtonIcon: {
         fontSize: 20,
         height: 22,
-        color: 'white',
+        color: 'white'
     }
 });
 

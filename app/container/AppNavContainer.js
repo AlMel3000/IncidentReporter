@@ -8,6 +8,7 @@ import colors from '../views/data/colors'
 import Main from '../views/screens/Main'
 import Splash from '../views/screens/Splash'
 import Contacts from '../views/screens/Contacts'
+import Image from '../views/screens/Image'
 
 
 const TopLevelNavigator = StackNavigator(
@@ -29,6 +30,15 @@ const TopLevelNavigator = StackNavigator(
         },
         Contacts: {
             screen: Contacts,
+            navigationOptions: () => ({
+                title: 'Some text',
+                headerTitleStyle: {alignSelf: 'center'},
+                headerBackTitle: null,
+                headerStyle: {backgroundColor: colors.lightGray}
+            })
+        },
+        Image: {
+            screen: Image,
             navigationOptions: () => ({
                 title: 'Some text',
                 headerTitleStyle: {alignSelf: 'center'},
