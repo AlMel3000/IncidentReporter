@@ -53,7 +53,7 @@ export default class Splash extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Bubbles size={16} color='blue'/>
+                <Bubbles size={16} color={colors.lightGray}/>
             </View>
         );
     }
@@ -62,7 +62,7 @@ export default class Splash extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.background,
+        backgroundColor: colors.intenseGray,
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center'

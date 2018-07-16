@@ -1,6 +1,5 @@
 import {
     Image,
-    Linking,
     ListView,
     PermissionsAndroid,
     ScrollView,
@@ -16,6 +15,8 @@ import React, {Component} from 'react';
 import colors from '../data/colors'
 import BlockHeader from '../ui_elements/BlockHeader'
 
+import Mailer from 'react-native-mail';
+
 
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -26,15 +27,15 @@ import {Bubbles} from 'react-native-loader';
 
 let ImagePicker = require('react-native-image-picker');
 
-//todo replace with actual strings
+
 let options = {
-    title: 'Some text',
+    title: 'Image',
     noData: true,
     quality: 1,
     mediaType: 'photo',
     permissionDenied: {
-        title: 'Some text',
-        text: 'Some text'
+        title: 'Permission denied.',
+        text: 'Please allow access in application`s settingst'
 
     }
 };
@@ -150,7 +151,8 @@ class Main extends Component {
             }
             else {
                 let source = {uri: response.uri};
-                imagesArray.push(source);
+                let path = {path: response.path};
+                imagesArray.push([source, path]);
                 this.setState({
                     dataSource: this.state.dataSource.cloneWithRows(imagesArray),
                 });
@@ -174,7 +176,8 @@ class Main extends Component {
             }
             else {
                 let source = {uri: response.uri};
-                imagesArray.push(source);
+                let path = {path: response.path};
+                imagesArray.push([source, path]);
                 this.setState({
                     dataSource: this.state.dataSource.cloneWithRows(imagesArray),
                 });
@@ -199,18 +202,40 @@ class Main extends Component {
             })
         } else {
             if (this.props.navigation.getParam('contacts', null)) {
-                Linking.openURL('mailto:' + this.props.navigation.getParam('contacts', null).map((recipient) => {
+
+                Mailer.mail({
+                    subject: 'Incident report',
+                    recipients: this.props.navigation.getParam('contacts', null).map((recipient) => {
                         return recipient.email
-                    }) + '?subject=Incident report&body=' +
-                    '\n' + this.state.description)
+                    }),
+                    body: this.state.description,
+                    isHTML: true,
+                    attachment: {
+                        path: imagesArray[0].path,
+                        type: 'image/jpg',
+                    }
+
+
+                }, (error, event) => {
+                    Alert.alert(
+                        error,
+                        event,
+                        [
+                            {text: 'Ok', onPress: () => console.log('OK: Email Error Response')},
+                            {text: 'Cancel', onPress: () => console.log('CANCEL: Email Error Response')}
+                        ],
+                        {cancelable: true}
+                    )
+                });
+
             }
 
         }
 
     }
 
-    removeImage(source) {
-        let index = imagesArray.indexOf(source);
+    removeImage(data) {
+        let index = imagesArray.indexOf(data);
         if (index > -1) {
             imagesArray.splice(index, 1);
             this.setState({
@@ -237,9 +262,9 @@ class Main extends Component {
                             margin: 8
                         }}
                         onPress={(e) => this.props.navigation.navigate('Image', {
-                            imageSource: rowData
+                            imageSource: rowData[0]
                         })}>
-                        <Image source={rowData} style={{height: 64, width: 64, resizeMode: 'contain'}}/>
+                        <Image source={rowData[0]} style={{height: 64, width: 64, resizeMode: 'contain'}}/>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={{
@@ -386,7 +411,7 @@ class Main extends Component {
                                 color: colors.textDark,
                                 alignSelf: 'stretch',
                                 fontSize: 14,
-                                backgroundColor: 'white',
+                                backgroundColor: colors.light,
                                 marginBottom: 16,
                                 marginHorizontal: 8,
                                 borderWidth: 1,
@@ -418,7 +443,7 @@ class Main extends Component {
                                 alignItems: 'flex-start',
                                 justifyContent: 'center',
                                 alignSelf: 'stretch',
-                                backgroundColor: 'white',
+                                backgroundColor: colors.light,
                                 height: 120,
                                 marginBottom: 16,
                                 marginHorizontal: 8,
@@ -470,7 +495,7 @@ const styles = StyleSheet.create({
     actionButtonIcon: {
         fontSize: 20,
         height: 22,
-        color: 'white'
+        color: colors.light
     }
 });
 

@@ -20,6 +20,7 @@
     "react-native-cardview": "^1.1.5",
     "react-native-image-picker": "^0.26.10",
     "react-native-loader": "^1.2.1",
+    "react-native-mail": "^3.0.6",
     "react-native-vector-icons": "^4.6.0",
     "react-navigation": "^2.6.2"
   },

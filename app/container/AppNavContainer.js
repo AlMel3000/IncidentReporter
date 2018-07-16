@@ -22,7 +22,7 @@ const TopLevelNavigator = StackNavigator(
         Main: {
             screen: Main,
             navigationOptions: () => ({
-                title: 'Some text',
+                title: 'New Incident Report',
                 headerTitleStyle: {alignSelf: 'center'},
                 headerBackTitle: null,
                 headerStyle: {backgroundColor: colors.lightGray}
@@ -31,7 +31,7 @@ const TopLevelNavigator = StackNavigator(
         Contacts: {
             screen: Contacts,
             navigationOptions: () => ({
-                title: 'Some text',
+                title: 'Select User',
                 headerTitleStyle: {alignSelf: 'center'},
                 headerBackTitle: null,
                 headerStyle: {backgroundColor: colors.lightGray}
@@ -40,7 +40,7 @@ const TopLevelNavigator = StackNavigator(
         Image: {
             screen: Image,
             navigationOptions: () => ({
-                title: 'Some text',
+                title: 'View Photo',
                 headerTitleStyle: {alignSelf: 'center'},
                 headerBackTitle: null,
                 headerStyle: {backgroundColor: colors.lightGray}

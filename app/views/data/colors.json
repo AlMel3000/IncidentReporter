@@ -1,8 +1,7 @@
-//todo replace with actual colors
 {
   "textBlack": "#212121",
-  "background": "#4F4F4F",
-  "gray": "#AEAEAE",
-  "lightGray": "#BDBDBD",
-  "intenseGray": "#4F4F4F"
+  "light": "#FFFFFF",
+  "dark": "rgb(106,106,106)",
+  "lightGray": "rgb(241,240,240)",
+  "intenseGray": "rgb(147,149,152)"
 }
