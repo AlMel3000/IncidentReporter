@@ -22,16 +22,16 @@ Developed in IntelliJ IDEA
         |= app                         <-- main source code
         \
             |
-             \= views            
+            |
+            \= container             <-- react-navigation container
+            |
+            \= views            
               |
                |= assets              <-- resources
-               |= data                <-- mock data 
+               |= data                <-- mock data, global colors for application
                |= screens             <-- App screens
-               |= ui_elements       ``<-- StaleLess & stateFull components, colors
-             |
-             \= container             <-- react-navigation container
-             |
-                                         |
+               |= ui_elements       ``<-- StaleLess & stateFull components            
+                                         
         \= ios                       
          |
           \= IncidentReporter                  <--  iOS resource folder
