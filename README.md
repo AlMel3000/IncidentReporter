@@ -49,12 +49,11 @@ To add button for chosing/picking photo - when photo area is empty
 To implement contacts storing on Main Screen
 To implement passing of selected contacts from Main scrren to Contacts screen - for checkbox behavior improvement
 
+To pass to email app all selected/picked images - only the one image currently is passing to email message
 
 # Known issues 
 
 On deletion images currently here may be mistakes if we delete in random order
-
-Images currently are not passing to email message
                
         
        

@@ -203,30 +203,51 @@ class Main extends Component {
         } else {
             if (this.props.navigation.getParam('contacts', null)) {
 
-                Mailer.mail({
-                    subject: 'Incident report',
-                    recipients: this.props.navigation.getParam('contacts', null).map((recipient) => {
-                        return recipient.email
-                    }),
-                    body: this.state.description,
-                    isHTML: true,
-                    attachment: {
-                        path: imagesArray[0].path,
-                        type: 'image/jpg',
-                    }
+                if (imagesArray.length > 0) {
+                    Mailer.mail({
+                        subject: 'Incident report',
+                        recipients: this.props.navigation.getParam('contacts', null).map((recipient) => {
+                            return recipient.email
+                        }),
+                        body: this.state.description,
+                        isHTML: true,
+                        attachment: {
+                            path: imagesArray[0][1].path,
+                            type: 'image/jpg',
+                        }
 
 
-                }, (error, event) => {
-                    Alert.alert(
-                        error,
-                        event,
-                        [
-                            {text: 'Ok', onPress: () => console.log('OK: Email Error Response')},
-                            {text: 'Cancel', onPress: () => console.log('CANCEL: Email Error Response')}
-                        ],
-                        {cancelable: true}
-                    )
-                });
+                    }, (error, event) => {
+                        Alert.alert(
+                            error,
+                            event,
+                            [
+                                {text: 'Ok', onPress: () => console.log('OK: Email Error Response')},
+                                {text: 'Cancel', onPress: () => console.log('CANCEL: Email Error Response')}
+                            ],
+                            {cancelable: true}
+                        )
+                    });
+                } else {
+                    Mailer.mail({
+                        subject: 'Incident report',
+                        recipients: this.props.navigation.getParam('contacts', null).map((recipient) => {
+                            return recipient.email
+                        }),
+                        body: this.state.description,
+                        isHTML: true,
+                    }, (error, event) => {
+                        Alert.alert(
+                            error,
+                            event,
+                            [
+                                {text: 'Ok', onPress: () => console.log('OK: Email Error Response')},
+                                {text: 'Cancel', onPress: () => console.log('CANCEL: Email Error Response')}
+                            ],
+                            {cancelable: true}
+                        )
+                    });
+                }
 
             }
 
@@ -288,7 +309,6 @@ class Main extends Component {
         }
 
     }
-
 
 
     render() {
