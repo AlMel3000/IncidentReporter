@@ -2,6 +2,7 @@ import {
     Image,
     ListView,
     PermissionsAndroid,
+    Platform,
     ScrollView,
     StyleSheet,
     Text,
@@ -106,24 +107,28 @@ class Main extends Component {
 
     async requestGeolocationPermission() {
         try {
-            geolocationPermissionsGranted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-                {
-                    'title': 'Incident Reporter App Geolocation Permission',
-                    'message': 'Incident Reporter needs access to Geolocation ' +
-                    'so you can submit detailed reports.'
-                }
-            );
-            if (geolocationPermissionsGranted === PermissionsAndroid.RESULTS.GRANTED) {
-                console.log("MAIN findLocation You can use the Geolocation");
-
-                return geolocationPermissionsGranted
-
+            if (Platform.OS === 'ios') {
+                return true;
             } else {
-                console.log("MAIN findLocation Geolocation permission denied");
-                //to break location requests if user gave not permission
-                clearInterval(this.interval);
-                return false;
+                geolocationPermissionsGranted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                    {
+                        'title': 'Incident Reporter App Geolocation Permission',
+                        'message': 'Incident Reporter needs access to Geolocation ' +
+                        'so you can submit detailed reports.'
+                    }
+                );
+                if (geolocationPermissionsGranted === PermissionsAndroid.RESULTS.GRANTED) {
+                    console.log("MAIN findLocation You can use the Geolocation");
+
+                    return geolocationPermissionsGranted
+
+                } else {
+                    console.log("MAIN findLocation Geolocation permission denied");
+                    //to break location requests if user gave not permission
+                    clearInterval(this.interval);
+                    return false;
+                }
             }
         } catch (err) {
             console.warn('MAIN findLocation requestGeolocation Permission error', err)
