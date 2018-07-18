@@ -24,6 +24,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import CardView from 'react-native-cardview'
 
 import {Bubbles} from 'react-native-loader';
+import {NavigationActions, StackActions} from "react-navigation";
 
 let ImagePicker = require('react-native-image-picker');
 
@@ -335,10 +336,30 @@ class Main extends Component {
         if (index > -1) {
             imagesArray.splice(index, 1);
             this.setState({
-                dataSource: this.state.dataSource.cloneWithRows(imagesArray),
+                dataSource: this.state.dataSource.cloneWithRows(imagesArray)
             });
         }
     }
+
+    clearReport() {
+        imagesArray.length = 0;
+        this.setState({
+            description: '',
+            descriptionBorderColor: 'transparent',
+            dataSource: this.state.dataSource.cloneWithRows(imagesArray)
+        });
+        this.clearNavigationProps();
+    }
+
+    clearNavigationProps() {
+        const resetAction = StackActions.reset({
+            index: 0,
+            actions: [NavigationActions.navigate({routeName: 'Main'})],
+        });
+        this.props.navigation.dispatch(resetAction);
+    }
+
+
 
     renderRow(rowData, sectionID: string, rowID: string) {
         if (!rowData) {
@@ -569,6 +590,11 @@ class Main extends Component {
                         this.sendReport(e)
                     }}>
                         <Icon name="md-mail" style={styles.actionButtonIcon}/>
+                    </ActionButton.Item>
+                    <ActionButton.Item buttonColor='black' title="Clear report" onPress={(e) => {
+                        this.clearReport(e)
+                    }}>
+                        <Icon name="md-trash" style={styles.actionButtonIcon}/>
                     </ActionButton.Item>
                 </ActionButton>
 
