@@ -31,7 +31,7 @@ public class MainApplication extends Application implements ReactApplication {
                     new RNCardViewPackage(),
                     new VectorIconsPackage(),
                     new ImagePickerPackage(),
-                    new RNFusedLocationPackage(
+                    new RNFusedLocationPackage()
                     );
         }
 
