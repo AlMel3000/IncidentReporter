@@ -2,8 +2,6 @@ import {CheckBox, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} f
 
 import React, {Component} from 'react';
 
-import {NavigationActions, StackActions} from 'react-navigation';
-
 import colors from '../data/colors'
 
 let recipientArray = require('../data/mock_recipients');
@@ -21,15 +19,6 @@ export default class Contacts extends Component {
     }
 
     componentDidMount() {
-    }
-
-
-    backToMain() {
-        const resetAction = StackActions.reset({
-            index: 0,
-            actions: [NavigationActions.navigate({routeName: 'Main'})],
-        });
-        this.props.navigation.dispatch(resetAction);
     }
 
     onCheckbox1Change(recipient, index) {
