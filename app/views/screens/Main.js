@@ -111,8 +111,7 @@ class Main extends Component {
     async requestlocationPermission() {
 
         try {
-            if (Platform.OS === 'ios' ||
-                (Platform.OS === 'android' && Platform.Version < 23)) {
+            if (Platform.OS === 'ios') {
                 return true;
             } else {
                 geolocationPermissionsGranted = await PermissionsAndroid.request(
