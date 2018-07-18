@@ -43,7 +43,9 @@ let options = {
 let imagesArray = [];
 
 let geolocationPermissionsGranted = false;
-const GEOLOCATION_REFRESH_RATE = 5000;
+const GEOLOCATION_REFRESH_DISTANCE_FILTER = 1;
+
+let watchID = null;
 
 class Main extends Component {
 
@@ -68,33 +70,29 @@ class Main extends Component {
 
 
     componentWillUnmount() {
-        clearInterval(this.interval);
+        if (watchID !== null) {
+            navigator.geolocation.clearWatch(watchID);
+        }
+
     }
 
     startGeolocationUpdate() {
         this.findLocation();
-        //to update location
-        this.interval = setInterval(() => {
-            this.findLocation();
-        }, GEOLOCATION_REFRESH_RATE);
     }
 
     findLocation() {
         if (geolocationPermissionsGranted) {
             navigator.geolocation.getCurrentPosition(
                 (geo_success) => {
-                    console.warn(geo_success.coords.latitude, geo_success.coords.longitude, geo_success.coords.speed, geo_success.coords.altitude,);
-                    this.setState({
-                        latitude: Main.roundNumber(geo_success.coords.latitude, 2),
-                        longitude: Main.roundNumber(geo_success.coords.longitude, 2),
-                        speed: Main.roundNumber(geo_success.coords.speed, 0),
-                        locationReceived: true
-                    })
+                    console.warn('MAIN findLocation', geo_success.coords.latitude, geo_success.coords.longitude, geo_success.coords.speed, geo_success.coords.altitude,);
+                    this.updatePositionValues(geo_success);
+                    //to update location (more battery consumption but configurable)
+                    this.startObservingGeolocation();
                 },
                 (geo_error) => {
-                    console.warn(geo_error);
+                    console.warn('MAIN findLocation error', geo_error);
                 },
-                {enableHighAccuracy: true, timeout: 20000, maximumAge: 100}
+                {enableHighAccuracy: true, timeout: 120000}
             );
         } else {
             this.requestGeolocationPermission().then((result => {
@@ -116,19 +114,47 @@ class Main extends Component {
                 }
             );
             if (geolocationPermissionsGranted === PermissionsAndroid.RESULTS.GRANTED) {
-                console.log("You can use the Geolocation");
+                console.log("MAIN findLocation You can use the Geolocation");
 
                 return geolocationPermissionsGranted
 
             } else {
-                console.log("Geolocation permission denied");
+                console.log("MAIN findLocation Geolocation permission denied");
                 //to break location requests if user gave not permission
                 clearInterval(this.interval);
                 return false;
             }
         } catch (err) {
-            console.warn(err)
+            console.warn('MAIN findLocation requestGeolocation Permission error', err)
         }
+    }
+
+    startObservingGeolocation() {
+        watchID = navigator.geolocation.watchPosition((lastPosition) => {
+                this.updatePositionValues(lastPosition);
+            },
+            (error) => console.warn('MAIN findLocation startObservingGeolocation error', error),
+            {
+                enableHighAccuracy: true,
+                timeout: 120000,
+                maximumAge: 100,
+                distanceFilter: GEOLOCATION_REFRESH_DISTANCE_FILTER
+            });
+
+    }
+
+    updatePositionValues(geo) {
+        this.setState({
+            latitude: Main.roundNumber(geo.coords.latitude, 2),
+            longitude: Main.roundNumber(geo.coords.longitude, 2),
+            speed: Main.roundNumber(geo.coords.speed, 0),
+            //precise values for letter
+            preciseLatitude: geo.coords.latitude,
+            preciseLongitude: geo.coords.longitude,
+            preciseSpeed: geo.coords.speed,
+            preciseAltitude: geo.coords.altitude,
+            locationReceived: true
+        })
     }
 
     static roundNumber(number, numbersAfterComma) {
@@ -201,16 +227,25 @@ class Main extends Component {
                 descriptionBorderColor: 'red'
             })
         } else {
-            if (this.props.navigation.getParam('contacts', null)) {
 
+            let mailBody;
+            if (this.state.locationReceived) {
+                mailBody = 'Location\n\nLatitude: ' + this.state.preciseLatitude + '\nLongitude: ' + this.state.preciseLongitude + '\nAltitude:  ' + this.state.preciseAltitude + '\nSpeed: ' + this.state.preciseSpeed + '\n\n\nDescription\n\n ' + this.state.description;
+            } else {
+                mailBody = 'Description{\n\n}' + this.state.description;
+            }
+
+            let recipients = null;
+
+            if (this.props.navigation.getParam('contacts', null)) {
                 if (imagesArray.length > 0) {
                     Mailer.mail({
                         subject: 'Incident report',
                         recipients: this.props.navigation.getParam('contacts', null).map((recipient) => {
                             return recipient.email
                         }),
-                        body: this.state.description,
-                        isHTML: true,
+                        body: mailBody,
+                        isHTML: false,
                         attachment: {
                             path: imagesArray[0][1].path,
                             type: 'image/jpg',
@@ -234,8 +269,8 @@ class Main extends Component {
                         recipients: this.props.navigation.getParam('contacts', null).map((recipient) => {
                             return recipient.email
                         }),
-                        body: this.state.description,
-                        isHTML: true,
+                        body: mailBody,
+                        isHTML: false,
                     }, (error, event) => {
                         Alert.alert(
                             error,
@@ -249,8 +284,48 @@ class Main extends Component {
                     });
                 }
 
-            }
 
+            } else {
+                if (imagesArray.length > 0) {
+                    Mailer.mail({
+                        subject: 'Incident report',
+                        body: mailBody,
+                        isHTML: false,
+                        attachment: {
+                            path: imagesArray[0][1].path,
+                            type: 'image/jpg',
+                        }
+
+
+                    }, (error, event) => {
+                        Alert.alert(
+                            error,
+                            event,
+                            [
+                                {text: 'Ok', onPress: () => console.log('OK: Email Error Response')},
+                                {text: 'Cancel', onPress: () => console.log('CANCEL: Email Error Response')}
+                            ],
+                            {cancelable: true}
+                        )
+                    });
+                } else {
+                    Mailer.mail({
+                        subject: 'Incident report',
+                        body: mailBody,
+                        isHTML: false,
+                    }, (error, event) => {
+                        Alert.alert(
+                            error,
+                            event,
+                            [
+                                {text: 'Ok', onPress: () => console.log('OK: Email Error Response')},
+                                {text: 'Cancel', onPress: () => console.log('CANCEL: Email Error Response')}
+                            ],
+                            {cancelable: true}
+                        )
+                    });
+                }
+            }
         }
 
     }
