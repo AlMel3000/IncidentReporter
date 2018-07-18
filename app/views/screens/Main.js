@@ -2,6 +2,7 @@ import {
     Image,
     ListView,
     PermissionsAndroid,
+    Platform,
     ScrollView,
     StyleSheet,
     Text,
@@ -14,6 +15,8 @@ import React, {Component} from 'react';
 
 import colors from '../data/colors'
 import BlockHeader from '../ui_elements/BlockHeader'
+
+import location from 'react-native-geolocation-service';
 
 import Mailer from 'react-native-mail';
 
@@ -44,6 +47,7 @@ let options = {
 let imagesArray = [];
 
 let geolocationPermissionsGranted = false;
+const GEOLOCATION_REFRESH_RATE = 5000;
 const GEOLOCATION_REFRESH_DISTANCE_FILTER = 1;
 
 let watchID = null;
@@ -66,29 +70,29 @@ class Main extends Component {
 
 
     componentDidMount() {
-        this.startGeolocationUpdate();
+        this.startlocationUpdate();
     }
 
 
     componentWillUnmount() {
         if (watchID !== null) {
-            navigator.geolocation.clearWatch(watchID);
+            location.clearWatch(watchID);
         }
 
     }
 
-    startGeolocationUpdate() {
+    startlocationUpdate() {
         this.findLocation();
     }
 
     findLocation() {
         if (geolocationPermissionsGranted) {
-            navigator.geolocation.getCurrentPosition(
+            location.getCurrentPosition(
                 (geo_success) => {
                     console.warn('MAIN findLocation', geo_success.coords.latitude, geo_success.coords.longitude, geo_success.coords.speed, geo_success.coords.altitude,);
                     this.updatePositionValues(geo_success);
                     //to update location (more battery consumption but configurable)
-                    this.startObservingGeolocation();
+                    this.startObservinglocation();
                 },
                 (geo_error) => {
                     console.warn('MAIN findLocation error', geo_error);
@@ -96,7 +100,7 @@ class Main extends Component {
                 {enableHighAccuracy: true, timeout: 120000}
             );
         } else {
-            this.requestGeolocationPermission().then((result => {
+            this.requestlocationPermission().then((result => {
                 if (result) {
                     this.findLocation()
                 }
@@ -104,42 +108,51 @@ class Main extends Component {
         }
     }
 
-    async requestGeolocationPermission() {
+    async requestlocationPermission() {
+
         try {
-            geolocationPermissionsGranted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-                {
-                    'title': 'Incident Reporter App Geolocation Permission',
-                    'message': 'Incident Reporter needs access to Geolocation ' +
-                    'so you can submit detailed reports.'
-                }
-            );
-            if (geolocationPermissionsGranted === PermissionsAndroid.RESULTS.GRANTED) {
-                console.log("MAIN findLocation You can use the Geolocation");
-
-                return geolocationPermissionsGranted
-
+            if (Platform.OS === 'ios' ||
+                (Platform.OS === 'android' && Platform.Version < 23)) {
+                return true;
             } else {
-                console.log("MAIN findLocation Geolocation permission denied");
-                //to break location requests if user gave not permission
-                clearInterval(this.interval);
-                return false;
+                geolocationPermissionsGranted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                    {
+                        'title': 'Incident Reporter App location Permission',
+                        'message': 'Incident Reporter needs access to location ' +
+                        'so you can submit detailed reports.'
+                    }
+                );
+                if (geolocationPermissionsGranted === PermissionsAndroid.RESULTS.GRANTED) {
+                    console.log("MAIN findLocation You can use the location");
+
+                    return geolocationPermissionsGranted
+
+                } else {
+                    console.log("MAIN findLocation location permission denied");
+                    //to break location requests if user gave not permission
+                    clearInterval(this.interval);
+                    return false;
+                }
             }
+
         } catch (err) {
-            console.warn('MAIN findLocation requestGeolocation Permission error', err)
+            console.warn('MAIN findLocation requestlocation Permission error', err)
         }
     }
 
-    startObservingGeolocation() {
-        watchID = navigator.geolocation.watchPosition((lastPosition) => {
+    startObservinglocation() {
+        watchID = location.watchPosition((lastPosition) => {
                 this.updatePositionValues(lastPosition);
             },
-            (error) => console.warn('MAIN findLocation startObservingGeolocation error', error),
+            (error) => console.warn('MAIN findLocation startObservinglocation error', error),
             {
                 enableHighAccuracy: true,
                 timeout: 120000,
                 maximumAge: 100,
-                distanceFilter: GEOLOCATION_REFRESH_DISTANCE_FILTER
+                interval: GEOLOCATION_REFRESH_RATE,
+                distanceFilter: GEOLOCATION_REFRESH_DISTANCE_FILTER,
+                showLocationDialog: true
             });
 
     }
