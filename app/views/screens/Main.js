@@ -88,14 +88,14 @@ class Main extends Component {
     findLocation() {
         if (geolocationPermissionsGranted) {
             location.getCurrentPosition(
-                (geo_success) => {
-                    console.warn('MAIN findLocation', geo_success.coords.latitude, geo_success.coords.longitude, geo_success.coords.speed, geo_success.coords.altitude,);
-                    this.updatePositionValues(geo_success);
+                (success) => {
+                    console.warn('MAIN findLocation', success.coords.latitude, success.coords.longitude, success.coords.speed, success.coords.altitude,);
+                    this.updatePositionValues(success);
                     //to update location (more battery consumption but configurable)
                     this.startObservinglocation();
                 },
-                (geo_error) => {
-                    console.warn('MAIN findLocation error', geo_error);
+                (error) => {
+                    console.warn('MAIN findLocation error', error);
                 },
                 {enableHighAccuracy: true, timeout: 120000}
             );
