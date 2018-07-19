@@ -1,4 +1,4 @@
-package com.incidentreporter;
+package com.incidentreporter2;
 
 import com.facebook.react.ReactActivity;
 

@@ -1,4 +1,4 @@
-package com.incidentreporter;
+package com.incidentreporter2;
 
 import android.app.Application;
 import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
