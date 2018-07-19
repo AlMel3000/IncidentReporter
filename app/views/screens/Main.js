@@ -150,6 +150,7 @@ class Main extends Component {
                 timeout: 120000,
                 maximumAge: 100,
                 interval: GEOLOCATION_REFRESH_RATE,
+                fastestInterval: 1000,
                 distanceFilter: GEOLOCATION_REFRESH_DISTANCE_FILTER,
                 showLocationDialog: true
             });
