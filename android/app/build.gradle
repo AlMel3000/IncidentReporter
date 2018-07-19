@@ -98,11 +98,11 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.incidentreporter"
+        applicationId "com.incidentreporter1"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "0.91-1"
+        versionCode 5
+        versionName "0.92-1"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }

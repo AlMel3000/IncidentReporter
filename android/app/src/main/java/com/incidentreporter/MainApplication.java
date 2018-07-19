@@ -1,4 +1,4 @@
-package com.incidentreporter;
+package com.incidentreporter1;
 
 import android.app.Application;
 import com.facebook.react.ReactApplication;
