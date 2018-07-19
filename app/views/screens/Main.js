@@ -8,7 +8,8 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
+    Vibration
 } from 'react-native';
 
 import React, {Component} from 'react';
@@ -239,7 +240,8 @@ class Main extends Component {
         if (this.state.description.trim().length < 2) {
             this.setState({
                 descriptionBorderColor: 'red'
-            })
+            });
+            Vibration.vibrate();
         } else {
 
             let mailBody;
