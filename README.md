@@ -89,10 +89,12 @@ It was not builded and tested for iOS, because that time I had only stationary i
 
 Here was some issues with geolocation detection on real phone (despite with simulator it was ok). They was solved (without deep testing).
 
-So here are two releases.
+So here are two releases. After deep testing only one will survive )
 
 ##### NB! Be careful with master alternative - as it uses Google services - on non Google Play version you will not pass Google Services check.
 
 This problem will resolve on Google Play deploy.
 
-Here are screenshots in docs folder, for disabling Google Services check
+Here are screenshots in docs folder, for disabling Google Services check.
+
+**After trying to install master-alternative with not disabled check - regular version installation will fall also!**
