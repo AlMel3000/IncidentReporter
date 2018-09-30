@@ -15,29 +15,33 @@ Developed in IntelliJ IDEA
 
        IncidentReporter
         |
-        \= android                  <-- android resource folder
+        \= android                          <-- android resource folder
             \= app 
-               |= notarization.keystore    <-- Google Play publishing sertificate   
+               |= notarization.keystore     <-- Google Play publishing sertificate   
         |
-        |= app                         <-- main source code
+        |= app                              <-- main source code
         \
             |
             |
-            \= container             <-- react-navigation container
+            \= container                    <-- react-navigation container
             |
             \= views            
               |
-               |= assets              <-- resources
-               |= data                <-- mock data, global colors for application
-               |= screens             <-- App screens
-               |= ui_elements       ``<-- StaleLess & stateFull components            
+               |= assets                    <-- resources
+               |= data                      <-- mock data, global colors for application
+               |= screens                   <-- App screens
+               |= ui_elements               <-- StaleLess & stateFull components            
                                          
         \= ios                       
          |
-          \= IncidentReporter                  <--  iOS resource folder
+      \= IncidentReporter                   <--  iOS resource folder
              
         |
-        |= index.js                   <--  entry point
+        |= docs                             <--  images attched to assignment
+        \   |
+            \= GoogleSevicesCheckDisabling  <--  screenshots for master-alternative branch testing
+        |
+        |= index.js                         <--  entry point
         
         
       
@@ -60,6 +64,9 @@ Developed in IntelliJ IDEA
 
 Для проверки нужен будет apk или ipa файл приложения, а также git-репозиторий с кодом.  
 
+
+Here are images attached to assignment in docs folder.
+
 # Possible improvements
 
 To add button for chosing/picking photo - when photo area is empty
@@ -73,6 +80,19 @@ To pass to email app all selected/picked images - only the one image currently i
 
 On deletion images currently here may be mistakes if we delete in random order
                
-        
+# Comments
+
+Application was developed concurrently with my main work so it could be better       
        
 
+It was not builded and tested for iOS, because that time I had only stationary in my office but app was developed at home.
+
+Here was some issues with geolocation detection on real phone (despite with simulator it was ok). They was solved (without deep testing).
+
+So here are two releases.
+
+##### NB! Be careful with master alternative - as it uses Google services - on non Google Play version you will not pass Google Services check.
+
+This problem will resolve on Google Play deploy.
+
+Here are screenshots in docs folder, for disabling Google Services check
