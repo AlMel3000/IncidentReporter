@@ -15,7 +15,7 @@
   "dependencies": {
     "babel-plugin-transform-remove-console": "^6.9.4",
     "react": "16.4.0",
-    "react-native": "0.55.4",
+    "react-native": "0.60.0",
     "react-native-action-button": "^2.8.4",
     "react-native-cardview": "^1.1.5",
     "react-native-image-picker": "^0.26.10",
